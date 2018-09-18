@@ -16,66 +16,77 @@ namespace Anna.zamorii_Task3
 
             if (context.InputParameters.ContainsKey("Target") && context.InputParameters["Target"] is Entity)
             {
-                Entity entityChild = (Entity)context.InputParameters["Target"];
-
-                EntityReference entityParentLookup = null;
-
-                if (entityChild.Attributes.ContainsKey("new_parent"))
+                if (context.Stage == 20)
                 {
-                    entityParentLookup = (EntityReference)entityChild.Attributes["new_parent"];
+                    Entity entityChild = (Entity)context.InputParameters["Target"];
+                    EntityReference entityParentLookup = null;
 
-                }
-                else
-                {
-                    Entity entityChildNew = service.Retrieve(entityChild.LogicalName, entityChild.Id, new ColumnSet("new_parent"));
-                    entityParentLookup = (EntityReference)entityChildNew.Attributes["new_parent"];
-                }
-                Entity entityParent = service.Retrieve(entityParentLookup.LogicalName, entityParentLookup.Id, new ColumnSet("new_lastname", "new_amount"));
-
-                QueryExpression ChildRecords = new QueryExpression
-                {
-                    EntityName = entityChild.LogicalName,
-                    ColumnSet = new ColumnSet("new_amount"),
-                    Criteria = new FilterExpression
+                    if (entityChild.Attributes.ContainsKey("new_parent"))
                     {
-                        Conditions =
-                        {
-                            new ConditionExpression
-                            {
-                                AttributeName = "new_parent",
-                                Operator = ConditionOperator.Equal,
-                                Values = { entityParent.Id }
-                            }
-                        }
+                        entityParentLookup = (EntityReference)entityChild.Attributes["new_parent"];
                     }
-                };
+                    else
+                    {
+                        Entity entityChildNew = service.Retrieve(entityChild.LogicalName, entityChild.Id, new ColumnSet("new_parent"));
+                        entityParentLookup = (EntityReference)entityChildNew.Attributes["new_parent"];
+                    }
 
-                DataCollection<Entity> entityMultiplyRecords = service.RetrieveMultiple(
-                    ChildRecords).Entities;
+                    Entity entityParent = service.Retrieve(entityParentLookup.LogicalName, entityParentLookup.Id, new ColumnSet("new_lastname", "new_amount"));
 
-               decimal childAmount = 0;
-
-                foreach (Entity entity in entityMultiplyRecords)
-                {
-                    //var child = (Money)entity.Attributes["new_amount"];
-                    //childAmount += child.Value;
-                     childAmount += ((Money)entity.Attributes["new_amount"]).Value;
-                    
+                    if (entityChild.Attributes.ContainsKey("new_parent"))
+                    {
+                        entityChild.Attributes["new_parentlastname"] = entityParent.Attributes["new_lastname"];
+                    }                  
+                   
                 }
-
-                entityParent.Attributes["new_amount"] = new Money(childAmount);
-
-                if (entityChild.Attributes.ContainsKey("new_parent"))
+                else if (context.Stage == 40)
                 {
-                    entityChild.Attributes["new_parentlastname"] = entityParent.Attributes["new_lastname"];
-                }
+                    Entity entityChild = (Entity)context.InputParameters["Target"];
+                    EntityReference entityParentLookup = null;
 
-                //var amountParent = (Money)entityParent.Attributes["new_amount"];
-                //var amountChild = (Money)entityChild.Attributes["new_amount"];
-                //var totalAmount = amountParent.Value + amountChild.Value;
-                //amountParent.Value = totalAmount;
+                    if (entityChild.Attributes.ContainsKey("new_parent"))
+                    {
+                        entityParentLookup = (EntityReference)entityChild.Attributes["new_parent"];
+                    }
+                    else
+                    {
+                        Entity entityChildNew = service.Retrieve(entityChild.LogicalName, entityChild.Id, new ColumnSet("new_parent"));
+                        entityParentLookup = (EntityReference)entityChildNew.Attributes["new_parent"];
+                    }
 
-                service.Update(entityParent);
+                    Entity entityParent = service.Retrieve(entityParentLookup.LogicalName, entityParentLookup.Id, new ColumnSet("new_lastname", "new_amount"));
+                    QueryExpression ChildRecords = new QueryExpression
+                    {
+                        EntityName = entityChild.LogicalName,
+                        ColumnSet = new ColumnSet("new_amount"),
+                        Criteria = new FilterExpression
+                        {
+                            Conditions =
+                            {
+                                new ConditionExpression
+                                {
+                                    AttributeName = "new_parent",
+                                    Operator = ConditionOperator.Equal,
+                                    Values = { entityParent.Id }
+                                }
+                             }
+                        }
+                    };
+
+                    DataCollection<Entity> entityMultiplyRecords = service.RetrieveMultiple(
+                        ChildRecords).Entities;
+
+                    decimal childAmount = 0;
+
+                    foreach (Entity entity in entityMultiplyRecords)
+                    {
+                        childAmount += ((Money)entity.Attributes["new_amount"]).Value;
+                    }
+
+                    // entityParent.Attributes["new_amount"] = new Money(childAmount);
+                    ((Money)entityParent.Attributes["new_amount"]).Value = childAmount + ((Money)entityParent.Attributes["new_amount"]).Value;
+                    service.Update(entityParent);                   
+                }                              
             }
         }
     }
