@@ -1,0 +1,17 @@
+function fullNameOn_Change() {
+
+    var firstName = Xrm.Page.getAttribute("new_firstname").getValue();
+    var lastName = Xrm.Page.getAttribute("new_lastname").getValue();
+
+    if (!firstName || !lastName) {
+        Xrm.Utility.alertDialog("firstName:" + firstName);
+        Xrm.Page.getAttribute("new_name").setValue(" ");
+    } else {
+        Xrm.Page.getAttribute("new_name").setValue(firstName + " " + lastName);
+    }
+
+    //if (lastName == null) {
+    //    Xrm.Utility.alertDialog("lastName:" + lastName);
+    //    Xrm.Page.getAttribute("new_name").setValue(" ");
+    //}
+}
