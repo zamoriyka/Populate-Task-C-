@@ -15,3 +15,12 @@ function fullNameOn_Change() {
     //    Xrm.Page.getAttribute("new_name").setValue(" ");
     //}
 }
+
+
+function fullName_OnChange() {
+    var firstName = Xrm.Page.getAttribute("new_firstname").getValue();
+    var lastName = Xrm.Page.getAttribute("new_lastname").getValue();
+    var fullName = firstName + " " + lastName;
+
+    Xrm.Page.getAttribute("new_name").setValue(fullName);
+}
