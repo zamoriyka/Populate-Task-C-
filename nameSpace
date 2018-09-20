@@ -1,0 +1,22 @@
+var Namespace = window.Namespace || {};
+//Namespace.Function = Namespace.Function || {};
+
+(function () {
+    this.onChange  = function(){
+        var firstName = Xrm.Page.getAttribute("new_firstname").getValue();
+        var lastName = Xrm.Page.getAttribute("new_lastname").getValue();
+        var fullName = firstName + " " + lastName;
+
+        if (!firstName) {
+            firstName = "";
+        }
+
+        if (!lastName) {
+            lastName = "";
+        }
+
+        Xrm.Page.getAttribute("new_name").setValue(fullName);
+    }
+    
+}).call(Namespace);
+
