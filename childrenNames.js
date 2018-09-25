@@ -32,17 +32,22 @@ function childrenNames() {
         }
     }
 
-    var lookupObject = Xrm.Page.getAttribute("new_childrennames");
-    if (lookupObject != null) {
-        var lookUpObjectValue = lookupObject.getValue();
-        if (lookUpObjectValue != null) {
-            var lookupid = lookUpObjectValue[0].id;
-        }
-    }
+ SDK.REST.retrieveMultipleRecords("new_azamorii_2018_child", "?$select=new_FirstName", onSuccess);
+  function onSuccess(result) {
+    var recordResult = result[0];
+    alert(recordResult);
+  }
 
-    var selectQuery = "/new_azamorii_2018_childSet?&$filter=new_azamorii_2018_childId eq guid'" + lookupid + "' &$select=new_name";
 
-    var oDataResult = null;
-    oDataResult = MakeRequest(selectQuery);
+  // Xrm.WebApi.retrieveMultipleRecords("new_azamorii_2018_child", "?$select=new_FirstName").then(
+  //   function success(result) {
+  //     for (var i = 0; i < result.entities.length; i++) {
+  //       console.log(result.entities[i]);
+  //     }
+  //   },
+  //   function (error) {
+  //     console.log(error.message);
+  //    
+  //   }
+  // );
 
-    }
