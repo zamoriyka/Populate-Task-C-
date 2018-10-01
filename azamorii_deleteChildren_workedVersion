@@ -1,0 +1,51 @@
+using System;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Workflow;
+using Microsoft.Xrm.Sdk.Query;
+using System.Activities;
+
+
+namespace deleteChildren
+{
+    public class azamorii_deleteChildren : CodeActivity
+    {
+        [Input("EntityReference input")]
+        [ReferenceTarget("new_azamorii_2018_child")]
+        public InArgument<EntityReference> child { get; set; }
+
+        protected override void Execute(CodeActivityContext executionContext)
+        {
+            IWorkflowContext context = executionContext.GetExtension<IWorkflowContext>();
+            IOrganizationServiceFactory serviceFactory = executionContext.GetExtension<IOrganizationServiceFactory>();
+            IOrganizationService service = serviceFactory.CreateOrganizationService(context.UserId);
+
+            Entity parent = (Entity)context.InputParameters["Target"];           
+
+            QueryExpression ChildRecords = new QueryExpression
+            {
+                EntityName = "new_azamorii_2018_child",
+                ColumnSet = new ColumnSet(true),
+                Criteria = new FilterExpression
+                {
+                    Conditions =
+                    {
+                        new ConditionExpression
+                        {
+                            AttributeName = "new_parent",
+                            Operator = ConditionOperator.Equal,
+                            Values = { parent.Id }
+                        }
+                    }
+                }
+            };
+
+            DataCollection<Entity> allChildren = service.RetrieveMultiple(
+                        ChildRecords).Entities;
+
+            foreach (Entity entity in allChildren)
+            {
+                service.Delete("new_azamorii_2018_child", entity.Id);
+            }
+        }        
+    }
+}
