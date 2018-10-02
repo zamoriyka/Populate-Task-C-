@@ -1,7 +1,7 @@
 function childrenNames() {
     function MakeRequest(query) {
-        var serverUrl = Xrm.Page.context.getClientUrl(); // My organization root url 
-        var oDataEndpointUrl = serverUrl + "/XRMServices/2011/OrganizationData.svc/"; // To locate and retrieve data 
+        var serverUrl = Xrm.Page.context.getClientUrl(); 
+        var oDataEndpointUrl = serverUrl + "/XRMServices/2011/OrganizationData.svc/"; 
         oDataEndpointUrl += query;
         var service = GetRequestObject();
 
@@ -32,22 +32,25 @@ function childrenNames() {
         }
     }
 
- SDK.REST.retrieveMultipleRecords("new_azamorii_2018_child", "?$select=new_FirstName", onSuccess);
-  function onSuccess(result) {
-    var recordResult = result[0];
-    alert(recordResult);
-  }
+    var parentId = Xrm.Page.data.entity.getId();
 
+    SDK.REST.retrieveMultipleRecords("new_azamorii_2018_child", "$filter=new_Parent/Id eq guid'" + parentId + "'&$select=new_name", onSuccess, errorHandler, onComplete);
+    function onSuccess(result) {
+        result;
 
-  // Xrm.WebApi.retrieveMultipleRecords("new_azamorii_2018_child", "?$select=new_FirstName").then(
-  //   function success(result) {
-  //     for (var i = 0; i < result.entities.length; i++) {
-  //       console.log(result.entities[i]);
-  //     }
-  //   },
-  //   function (error) {
-  //     console.log(error.message);
-  //    
-  //   }
-  // );
+        var arr = [];
+        for (var i = 0; i < result.length; i++) {
+            arr.push(result[i].new_name);
+        }
+
+        Xrm.Page.getAttribute("new_childrennames").setValue(arr.join(", "));
+    }
+
+    function errorHandler(error) {
+        alert(error.message);
+    }
+
+    function onComplete() {
+    }
+}
 
