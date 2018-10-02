@@ -1,0 +1,43 @@
+using System;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Workflow;
+using System.Activities;
+using Microsoft.Crm.Sdk.Messages;
+
+
+namespace emailNotification
+{
+    public class emailNotificationClass : CodeActivity
+    { 
+        protected override void Execute(CodeActivityContext executionContext)
+        {
+            IWorkflowContext context = executionContext.GetExtension<IWorkflowContext>();
+            IOrganizationServiceFactory serviceFactory = executionContext.GetExtension<IOrganizationServiceFactory>();
+            IOrganizationService service = serviceFactory.CreateOrganizationService(context.UserId);
+
+            Entity parent = (Entity)context.InputParameters["Target"];
+
+            Entity from = new Entity("activityparty");
+            from["partyid"] = new EntityReference("systemuser", context.UserId);
+            Entity to = new Entity("activityparty");
+            to["partyid"] = new EntityReference("systemuser", context.UserId);
+
+            Entity email = new Entity("email");
+            email.Attributes["from"] = new Entity[] { from };
+            email.Attributes["to"] = new Entity[] { to };
+            email.Attributes["subject"] = "BimBoBi!New record has been created";
+            email.Attributes["description"] = ("Name: " + ((String)parent.Attributes["new_firstname"]) + " " + ((String)parent.Attributes["new_lastname"]) + "<br>" + "Amount: $") + ((Money)parent.Attributes["new_amount"]).Value;
+           
+           Guid emailId = service.Create(email);
+
+            SendEmailRequest request = new SendEmailRequest
+            {
+                EmailId = emailId,
+                IssueSend = true,
+                TrackingToken = ""
+            };
+
+            SendEmailResponse respose = (SendEmailResponse)service.Execute(request);
+        }
+    }
+}
