@@ -16,9 +16,10 @@ function SecurityRoleChanging() {
    }
 
 
-function GetRoleName(userRoles) {
+function SecurityRoleChanging() {
+    var userRoleId = Xrm.Page.context.getUserRoles();
     var req = new XMLHttpRequest();
-    req.open("GET", Xrm.Page.context.getClientUrl() + "/api/data/v8.0/roles?$select=name&$filter=roleid eq " + userRoles);
+    req.open("GET", Xrm.Page.context.getClientUrl() + "/api/data/v8.0/roles?$select=name&$filter=roleid eq " + userRoleId, false);
     req.setRequestHeader("OData-MaxVersion", "4.0");
     req.setRequestHeader("OData-Version", "4.0");
     req.setRequestHeader("Accept", "application/json");
@@ -29,8 +30,10 @@ function GetRoleName(userRoles) {
             req.onreadystatechange = null;
             if (this.status === 200) {
                 var result = JSON.parse(this.response);
-                var roleName = result["name"];
+                console.log(result);
+                var roleName = result.value[0].name;
                 alert(roleName);
+                console.log(roleName + " This is your role name! Congrads!")
             } else {
                 Xrm.Utility.alertDialog(this.statusText);
             }
@@ -38,3 +41,4 @@ function GetRoleName(userRoles) {
     };
     req.send();
 }
+
